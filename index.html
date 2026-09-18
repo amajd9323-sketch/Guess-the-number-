@@ -46,7 +46,7 @@
   .turn-opp { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid var(--accent2); }
   .turn-win { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid var(--blue); }
 
-  input[type=text], input[type=number] {
+  input[type=text], input[type=number], input[type=password] {
     width: 100%; padding: 14px; font-size: 20px; text-align: center;
     border-radius: 12px; border: 2px solid #334155; background: #0f172a;
     color: var(--text); margin-bottom: 12px;
@@ -61,7 +61,6 @@
   button:disabled { opacity: .4; cursor: not-allowed; }
   .btn-main { background: var(--accent); color: #052e16; }
   .btn-main:hover { background: #16a34a; }
-  .btn-secondary { background: #334155; color: var(--text); }
   
   .code-box {
     font-size: 32px; font-weight: bold; letter-spacing: 6px; background: #0f172a;
@@ -128,17 +127,28 @@
     <div class="waiting-line">بانتظار انضمام الخصم...</div>
   </div>
 
-  <!-- SCREEN 3: Setup Screen -->
-  <div id="setupScreen" class="hidden">
+  <!-- SCREEN 3: Name Setup Screen -->
+  <div id="nameSetupScreen" class="hidden">
     <h1>👋 مرحباً بك</h1>
     <div class="sub">أدخل اسمك للبدء بالمنافسة (الفوز من 3 جولات)</div>
     <input type="text" id="myName" placeholder="اسمك" maxlength="12">
-    <div class="error" id="setupError"></div>
-    <button class="btn-main" id="btnReady" onclick="confirmSetup()">أنا جاهز!</button>
-    <div class="status" id="setupStatus"></div>
+    <div class="error" id="nameSetupError"></div>
+    <button class="btn-main" id="btnNameReady" onclick="confirmName()">دخول اللعبة</button>
+    <div class="status" id="nameSetupStatus"></div>
   </div>
 
-  <!-- SCREEN 4: Game Screen -->
+  <!-- SCREEN 4: Secret Number Setup (Per Round) -->
+  <div id="secretSetupScreen" class="hidden">
+    <div class="round-tag" id="secretRoundBanner">الجولة 1</div>
+    <h1>🔒 اختر رقمك السري</h1>
+    <div class="sub">أدخل الرقم (من 1 إلى 100) الذي تحاول تحصينه من خصمك</div>
+    <input type="password" id="mySecretInput" placeholder="رقمك السري (1-100)" min="1" max="100">
+    <div class="error" id="secretError"></div>
+    <button class="btn-main" id="btnSecretReady" onclick="confirmSecret()">تأكيد الرقم السري</button>
+    <div class="status" id="secretStatus"></div>
+  </div>
+
+  <!-- SCREEN 5: Guess Game Screen -->
   <div id="guessScreen" class="hidden">
     <div class="round-tag" id="roundBanner">الجولة 1</div>
     <div class="turn-badge" id="turnBadge">---</div>
@@ -149,19 +159,19 @@
     </div>
 
     <div id="turnControls">
-      <input type="number" id="guessInput" placeholder="خمّن رقمًا (1-100)" min="1" max="100">
+      <input type="number" id="guessInput" placeholder="خمّن رقم الخصم (1-100)" min="1" max="100">
       <button class="btn-main" id="guessBtn" onclick="submitGuess()">إرسال التخمين</button>
     </div>
 
-    <div class="feedback" id="feedback">ابدأ بتخمين الرقم!</div>
+    <div class="feedback" id="feedback">ابدأ بتخمين رقم الخصم!</div>
     <div class="history" id="history"></div>
   </div>
 
-  <!-- SCREEN 5: End Screen -->
+  <!-- SCREEN 6: End Screen -->
   <div id="endScreen" class="hidden">
     <h1>🏆 انتهت المباراة</h1>
     <div class="feedback fb-win" id="endResult" style="margin:20px 0;"></div>
-    <button class="btn-main" onclick="requestRestart()">العب مرة أخرى</button>
+    <button class="btn-main" onclick="requestRestart()">العب مباراة جديدة</button>
   </div>
 
 </div>
@@ -173,26 +183,30 @@ let S = {
   conn: null,
   myName: 'اللاعب',
   oppName: 'الخصم',
-  myReady: false,
-  oppReady: false,
+  nameReady: false,
+  oppNameReady: false,
 
-  // حالة اللعبة المركزية (المُدارّة من الـ Host)
+  // حفظ الأرقام السرية في جانب الـ Host لمنع التلاعب
+  privateSecrets: { host: null, joiner: null },
+
+  // حالة اللعبة المركزية المشتركة
   gameState: {
     started: false,
+    phase: 'NAME_SETUP', // 'NAME_SETUP' | 'SECRET_SETUP' | 'PLAYING' | 'GAME_OVER'
     round: 1,
     scores: { host: 0, joiner: 0 },
-    secretNumber: null,
+    secretsSubmitted: { host: false, joiner: false },
     currentTurn: 'host', // 'host' | 'joiner'
     starterTurn: 'host',
-    roundWinner: null,   // null | 'host' | 'joiner'
-    history: [],         // قائمة التخمينات للجولة الحالية
+    roundWinner: null,
+    history: [],
     gameOver: false,
     winnerRole: null
   }
 };
 
 function showScreen(id) {
-  ['connectScreen', 'waitScreen', 'setupScreen', 'guessScreen', 'endScreen'].forEach(s => {
+  ['connectScreen', 'waitScreen', 'nameSetupScreen', 'secretSetupScreen', 'guessScreen', 'endScreen'].forEach(s => {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
@@ -264,7 +278,7 @@ function joinRoom() {
 
 function setupConnHandlers() {
   S.conn.on('open', function() {
-    showScreen('setupScreen');
+    showScreen('nameSetupScreen');
   });
 
   S.conn.on('data', function(msg) {
@@ -282,29 +296,33 @@ function send(msg) {
   if (S.conn && S.conn.open) S.conn.send(msg);
 }
 
-// ----------------- إعداد اللاعبين -----------------
-function confirmSetup() {
+// ----------------- إعداد اسم اللاعب -----------------
+function confirmName() {
   const name = document.getElementById('myName').value.trim() || (S.role === 'host' ? 'اللاعب 1' : 'اللاعب 2');
   S.myName = name;
-  S.myReady = true;
+  S.nameReady = true;
 
   document.getElementById('myName').disabled = true;
-  document.getElementById('btnReady').disabled = true;
+  document.getElementById('btnNameReady').disabled = true;
 
   if (S.role === 'host') {
-    document.getElementById('setupStatus').textContent = S.oppReady ? '' : 'بانتظار جهوزية الخصم...';
-    checkBothReady();
+    document.getElementById('nameSetupStatus').textContent = S.oppNameReady ? '' : 'بانتظار جهوزية الخصم...';
+    checkBothNamesReady();
   } else {
-    send({ type: 'JOINER_READY', name: name });
-    document.getElementById('setupStatus').textContent = 'بانتظار بدء اللعبة من المضيف...';
+    send({ type: 'JOINER_NAME', name: name });
+    document.getElementById('nameSetupStatus').textContent = 'بانتظار بدء اللعبة من المضيف...';
   }
 }
 
 function handleHostMessages(msg) {
-  if (msg.type === 'JOINER_READY') {
+  if (msg.type === 'JOINER_NAME') {
     S.oppName = msg.name;
-    S.oppReady = true;
-    checkBothReady();
+    S.oppNameReady = true;
+    checkBothNamesReady();
+  } else if (msg.type === 'SUBMIT_SECRET') {
+    S.privateSecrets.joiner = msg.val;
+    S.gameState.secretsSubmitted.joiner = true;
+    checkBothSecretsReady();
   } else if (msg.type === 'SUBMIT_GUESS') {
     processGuess('joiner', msg.val);
   } else if (msg.type === 'RESTART_REQUEST') {
@@ -320,19 +338,52 @@ function handleJoinerMessages(msg) {
   }
 }
 
-function checkBothReady() {
-  if (S.role === 'host' && S.myReady && S.oppReady) {
+function checkBothNamesReady() {
+  if (S.role === 'host' && S.nameReady && S.oppNameReady) {
     startNewGame();
   }
 }
 
-// ----------------- منطق اللعبة (الـ Host) -----------------
+// ----------------- إعداد الرقم السري للجولة -----------------
+function confirmSecret() {
+  const val = parseInt(document.getElementById('mySecretInput').value);
+  const errEl = document.getElementById('secretError');
+  errEl.textContent = '';
+
+  if (!val || val < 1 || val > 100) {
+    errEl.textContent = 'الرجاء إدخال رقم صحيح بين 1 و 100';
+    return;
+  }
+
+  document.getElementById('mySecretInput').disabled = true;
+  document.getElementById('btnSecretReady').disabled = true;
+  document.getElementById('secretStatus').textContent = 'تم حفظ رقمك! بانتظار الخصم ليختار رقمه السري...';
+
+  if (S.role === 'host') {
+    S.privateSecrets.host = val;
+    S.gameState.secretsSubmitted.host = true;
+    checkBothSecretsReady();
+  } else {
+    send({ type: 'SUBMIT_SECRET', val: val });
+  }
+}
+
+function checkBothSecretsReady() {
+  if (S.role === 'host' && S.gameState.secretsSubmitted.host && S.gameState.secretsSubmitted.joiner) {
+    S.gameState.phase = 'PLAYING';
+    S.gameState.secretsSubmitted = { host: false, joiner: false };
+    broadcastState();
+  }
+}
+
+// ----------------- إدارة الجولات والمباراة -----------------
 function startNewGame() {
   S.gameState = {
     started: true,
+    phase: 'SECRET_SETUP',
     round: 1,
     scores: { host: 0, joiner: 0 },
-    secretNumber: Math.floor(Math.random() * 100) + 1,
+    secretsSubmitted: { host: false, joiner: false },
     starterTurn: Math.random() < 0.5 ? 'host' : 'joiner',
     currentTurn: 'host',
     roundWinner: null,
@@ -340,16 +391,18 @@ function startNewGame() {
     gameOver: false,
     winnerRole: null
   };
+  S.privateSecrets = { host: null, joiner: null };
   S.gameState.currentTurn = S.gameState.starterTurn;
   broadcastState();
 }
 
-function startNextRound() {
+function startNextRoundSetup() {
   S.gameState.round++;
-  S.gameState.secretNumber = Math.floor(Math.random() * 100) + 1;
+  S.gameState.phase = 'SECRET_SETUP';
   S.gameState.history = [];
   S.gameState.roundWinner = null;
-  // التناوب على بدء الجولة التالية
+  S.privateSecrets = { host: null, joiner: null };
+  S.gameState.secretsSubmitted = { host: false, joiner: false };
   S.gameState.starterTurn = (S.gameState.starterTurn === 'host') ? 'joiner' : 'host';
   S.gameState.currentTurn = S.gameState.starterTurn;
   broadcastState();
@@ -359,25 +412,29 @@ function processGuess(guesserRole, val) {
   const gs = S.gameState;
   if (gs.gameOver || gs.roundWinner || gs.currentTurn !== guesserRole) return;
 
-  if (val === gs.secretNumber) {
-    // إجابة صحيحة - فوز بالجولة
+  const opponentRole = (guesserRole === 'host') ? 'joiner' : 'host';
+  const targetSecret = S.privateSecrets[opponentRole];
+
+  if (val === targetSecret) {
+    // تخمين صحيح!
     gs.scores[guesserRole]++;
     gs.roundWinner = guesserRole;
     gs.history.push({ guesser: guesserRole, val: val, dir: 'win' });
 
     if (gs.scores[guesserRole] >= 3) {
+      gs.phase = 'GAME_OVER';
       gs.gameOver = true;
       gs.winnerRole = guesserRole;
       broadcastState();
     } else {
       broadcastState();
-      setTimeout(startNextRound, 2500); // الانتقال للجولة التالية بعد ثانيتين ونصف
+      setTimeout(startNextRoundSetup, 2500); // انتقال للجولة التالية
     }
   } else {
-    // إجابة خاطئة - تحديد الاتجاه وتبديل الدور
-    const dir = val < gs.secretNumber ? 'up' : 'down';
+    // تخمين خاطئ
+    const dir = val < targetSecret ? 'up' : 'down';
     gs.history.push({ guesser: guesserRole, val: val, dir: dir });
-    gs.currentTurn = (guesserRole === 'host') ? 'joiner' : 'host';
+    gs.currentTurn = opponentRole;
     broadcastState();
   }
 }
@@ -416,8 +473,30 @@ function renderState() {
   const gs = S.gameState;
   if (!gs.started) return;
 
-  // 1. نهاية المباراة
-  if (gs.gameOver) {
+  // 1. مرحلة إدخال الرقم السري للجولة
+  if (gs.phase === 'SECRET_SETUP') {
+    showScreen('secretSetupScreen');
+    document.getElementById('secretRoundBanner').textContent = `الجولة ${gs.round}`;
+
+    // إعادة ضبط الحقول إذا كانت جولة جديدة
+    const secretInput = document.getElementById('mySecretInput');
+    const secretBtn = document.getElementById('btnSecretReady');
+    const secretStatus = document.getElementById('secretStatus');
+
+    if (!secretInput.disabled && secretInput.value === '') {
+      // شاشة جديدة جاهزة للإدخال
+    } else if (gs.history.length === 0 && !gs.secretsSubmitted[S.role]) {
+      secretInput.disabled = false;
+      secretBtn.disabled = false;
+      secretInput.value = '';
+      secretStatus.textContent = '';
+      document.getElementById('secretError').textContent = '';
+    }
+    return;
+  }
+
+  // 2. مرحلة نهاية المباراة
+  if (gs.phase === 'GAME_OVER') {
     showScreen('endScreen');
     const isWinner = (gs.winnerRole === S.role);
     const winnerName = (gs.winnerRole === S.role) ? S.myName : S.oppName;
@@ -430,9 +509,8 @@ function renderState() {
     return;
   }
 
+  // 3. مرحلة التخمين واللعب
   showScreen('guessScreen');
-
-  // 2. تحديث العنوان والدور
   document.getElementById('roundBanner').textContent = `الجولة ${gs.round} (الفوز من 3)`;
   
   const myTurn = (gs.currentTurn === S.role);
@@ -440,23 +518,23 @@ function renderState() {
 
   if (gs.roundWinner) {
     const roundWinName = (gs.roundWinner === S.role) ? S.myName : S.oppName;
-    badge.textContent = `🎉 فاز ${roundWinName} بهذه الجولة! جارٍ التجهيز للجولة التالية...`;
+    badge.textContent = `🎉 فاز ${roundWinName} بهذه الجولة! جارٍ الانتقال للرقم السري الجديد...`;
     badge.className = 'turn-badge turn-win';
   } else if (myTurn) {
-    badge.textContent = `🎯 دورك الآن! خمّن رقمًا بين 1 و 100`;
+    badge.textContent = `🎯 دورك الآن! خمّن الرقم السري لـ ${S.oppName}`;
     badge.className = 'turn-badge turn-me';
   } else {
-    badge.textContent = `⏳ دور ${S.oppName}... ينتظر التخمين`;
+    badge.textContent = `⏳ دور ${S.oppName}... يحاول تخمين رقمك السري`;
     badge.className = 'turn-badge turn-opp';
   }
 
-  // 3. لوحة النقاط
+  // لوحة النقاط
   const myScore = gs.scores[S.role];
   const oppScore = gs.scores[S.role === 'host' ? 'joiner' : 'host'];
   document.getElementById('scoreMe').innerHTML = `${S.myName} (أنت)<span>${myScore} / 3</span>`;
   document.getElementById('scoreOpp').innerHTML = `${S.oppName}<span>${oppScore} / 3</span>`;
 
-  // 4. التحكم بالتخمين
+  // التحكم بالمدخلات
   const input = document.getElementById('guessInput');
   const btn = document.getElementById('guessBtn');
   const canGuess = myTurn && !gs.roundWinner;
@@ -464,14 +542,14 @@ function renderState() {
   input.disabled = !canGuess;
   btn.disabled = !canGuess;
 
-  // 5. النتيجة الأخيرة والسجل
+  // النتيجة الأخيرة وسجل التخمينات
   const fb = document.getElementById('feedback');
   if (gs.history.length > 0) {
     const last = gs.history[gs.history.length - 1];
     const lastGuesserName = (last.guesser === S.role) ? 'أنت' : S.oppName;
 
     if (last.dir === 'win') {
-      fb.textContent = `🎉 ${lastGuesserName} خمّن الرقم الصحيح (${last.val})!`;
+      fb.textContent = `🎉 ${lastGuesserName} اكتشف الرقم السري (${last.val})!`;
       fb.className = 'feedback fb-win';
     } else if (last.dir === 'up') {
       fb.textContent = `💡 تخمين ${lastGuesserName} (${last.val}): الرقم المطلوب أعلى ⬆️`;
@@ -481,7 +559,7 @@ function renderState() {
       fb.className = 'feedback fb-low';
     }
   } else {
-    fb.textContent = 'ابدأ بتخمين الرقم!';
+    fb.textContent = 'تم إخفاء الأرقام السرية، ابدأ التخمين!';
     fb.className = 'feedback';
   }
 
@@ -509,7 +587,8 @@ function renderState() {
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
   if (!document.getElementById('joinBox').classList.contains('hidden')) joinRoom();
-  else if (!document.getElementById('setupScreen').classList.contains('hidden')) confirmSetup();
+  else if (!document.getElementById('nameSetupScreen').classList.contains('hidden')) confirmName();
+  else if (!document.getElementById('secretSetupScreen').classList.contains('hidden')) confirmSecret();
   else if (!document.getElementById('guessScreen').classList.contains('hidden')) submitGuess();
 });
 </script>
