@@ -3,123 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خمّن الرقم 💖 - لعبة إبراهيم ويارا</title>
+<title>إبراهيم & يارا 💖 - لعبة خمّن الرقم</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 <style>
   :root {
-    --bg-gradient: linear-gradient(135deg, #2a081a 0%, #150a21 50%, #2a081a 100%);
-    --card-bg: rgba(35, 18, 38, 0.85);
+    --bg: linear-gradient(135deg, #23091b 0%, #12061c 50%, #2e0923 100%);
+    --card-bg: rgba(32, 14, 35, 0.9);
     --accent: #f43f5e;
     --accent-hover: #e11d48;
-    --accent-glow: rgba(244, 63, 94, 0.4);
+    --accent-glow: rgba(244, 63, 94, 0.5);
     --accent2: #fbbf24;
     --blue: #38bdf8;
     --text: #fff1f2;
     --muted: #fda4af;
-    --border: rgba(244, 63, 94, 0.25);
+    --border: rgba(244, 63, 94, 0.35);
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; min-height: 100vh;
-    background: var(--bg-gradient);
-    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-    color: var(--text);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    overflow-x: hidden;
+    margin: 0; min-height: 100vh; background: var(--bg);
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif; color: var(--text);
+    display: flex; align-items: center; justify-content: center; padding: 16px; overflow-x: hidden;
   }
-  
+  canvas#confettiCanvas {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 99;
+  }
+
   /* خلفية القلوب المتحركة */
   .bg-hearts {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 0;
   }
   .heart-particle {
-    position: absolute; color: rgba(244, 63, 94, 0.15);
-    font-size: 20px; animation: floatUp 8s infinite linear;
+    position: absolute; color: rgba(244, 63, 94, 0.2);
+    font-size: 22px; animation: floatUp 7s infinite linear;
   }
   @keyframes floatUp {
     0% { transform: translateY(100vh) scale(0.8); opacity: 0; }
-    50% { opacity: 0.6; }
-    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    50% { opacity: 0.7; }
+    100% { transform: translateY(-10vh) scale(1.3); opacity: 0; }
   }
 
   .card {
-    position: relative; z-index: 1;
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    border-radius: 28px; padding: 32px 26px;
-    width: 100%; max-width: 440px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--accent-glow);
-    text-align: center;
+    position: relative; z-index: 1; background: var(--card-bg);
+    backdrop-filter: blur(20px); border: 1px solid var(--border);
+    border-radius: 28px; padding: 28px 22px; width: 100%; max-width: 440px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px var(--accent-glow); text-align: center;
+  }
+  
+  .couple-badge {
+    display: inline-block; background: rgba(244, 63, 94, 0.18); border: 1px solid var(--accent);
+    padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: bold;
+    color: #fecdd3; margin-bottom: 12px; box-shadow: 0 0 12px var(--accent-glow);
   }
 
-  h1 { font-size: 24px; margin: 0 0 6px; color: #ffe4e6; text-shadow: 0 0 10px var(--accent-glow); }
-  .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
-
-  .round-tag {
-    font-size: 13px; color: var(--accent2); font-weight: bold;
-    margin-bottom: 10px; letter-spacing: 1px;
+  h1 { font-size: 25px; margin: 0 0 6px; color: #ffe4e6; text-shadow: 0 0 12px var(--accent-glow); }
+  .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 20px; }
+  
+  .streak-bar {
+    display: flex; justify-content: space-around; background: rgba(15, 7, 20, 0.65);
+    border-radius: 12px; padding: 10px; font-size: 13px; color: var(--accent2); margin-bottom: 16px; border: 1px dashed var(--border);
   }
+  .round-tag { font-size: 13px; color: var(--accent2); font-weight: bold; margin-bottom: 8px; letter-spacing: 1px; }
+  
   .turn-badge {
-    display: block; padding: 12px 18px; border-radius: 16px;
-    font-weight: bold; font-size: 15px; margin-bottom: 18px;
-    transition: all 0.3s ease;
+    display: block; padding: 12px 16px; border-radius: 16px; font-weight: bold; font-size: 14px;
+    margin-bottom: 16px; transition: all 0.3s ease;
   }
-  .turn-me { background: rgba(244, 63, 94, 0.2); color: #fecdd3; border: 1px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+  .turn-me { background: rgba(244, 63, 94, 0.22); color: #fecdd3; border: 1px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
   .turn-opp { background: rgba(251, 191, 36, 0.15); color: #fef08a; border: 1px solid var(--accent2); }
   .turn-win { background: rgba(56, 189, 248, 0.2); color: #bae6fd; border: 1px solid var(--blue); }
 
   input[type=text], input[type=number], input[type=password] {
-    width: 100%; padding: 14px; font-size: 18px; text-align: center;
-    border-radius: 14px; border: 2px solid var(--border); background: rgba(15, 7, 20, 0.7);
-    color: var(--text); margin-bottom: 14px; transition: border-color 0.3s;
+    width: 100%; padding: 14px; font-size: 18px; text-align: center; border-radius: 14px;
+    border: 2px solid var(--border); background: rgba(15, 7, 20, 0.7); color: var(--text); margin-bottom: 12px;
   }
   input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
-
+  
   button {
-    width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
-    border: none; border-radius: 14px; cursor: pointer; margin-top: 6px;
-    transition: all 0.2s ease;
+    width: 100%; padding: 14px; font-size: 15px; font-weight: bold; border: none;
+    border-radius: 14px; cursor: pointer; margin-top: 6px; transition: all 0.2s ease;
   }
   button:active { transform: scale(0.97); }
   button:disabled { opacity: .4; cursor: not-allowed; }
   .btn-main { background: var(--accent); color: #fff; box-shadow: 0 4px 20px var(--accent-glow); }
   .btn-main:hover { background: var(--accent-hover); }
+  .btn-hint { background: rgba(251, 191, 36, 0.2); color: #fef08a; border: 1px solid var(--accent2); margin-top: 6px; }
 
   .code-box {
-    font-size: 34px; font-weight: bold; letter-spacing: 6px; background: rgba(15, 7, 20, 0.8);
-    border: 2px dashed var(--accent); border-radius: 16px; padding: 14px; margin: 18px 0; color: #ffe4e6;
+    font-size: 32px; font-weight: bold; letter-spacing: 6px; background: rgba(15, 7, 20, 0.8);
+    border: 2px dashed var(--accent); border-radius: 16px; padding: 12px; margin: 16px 0; color: #ffe4e6;
   }
-
-  .feedback { font-size: 16px; font-weight: bold; min-height: 28px; margin: 16px 0; }
+  .feedback { font-size: 15px; font-weight: bold; min-height: 28px; margin: 14px 0; }
   .fb-high { color: #fde047; }
   .fb-low { color: #38bdf8; }
-  .fb-win { color: #4ade80; font-size: 18px; }
+  .fb-win { color: #4ade80; font-size: 17px; }
 
-  .history { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; max-height: 180px; overflow-y: auto; }
-  .chip { background: rgba(15, 7, 20, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; text-align: right; }
+  .history { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; max-height: 160px; overflow-y: auto; }
+  .chip { background: rgba(15, 7, 20, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 13px; text-align: right; }
   .chip.up { border-color: var(--accent2); color: #fde047; }
   .chip.down { border-color: var(--blue); color: #7dd3fc; }
   .chip.win { border-color: #4ade80; color: #4ade80; font-weight: bold; }
 
-  .scoreboard { display: flex; justify-content: space-between; background: rgba(15, 7, 20, 0.7); border-radius: 16px; padding: 14px 20px; margin-bottom: 18px; border: 1px solid var(--border); }
-  .score-item span { display: block; font-size: 24px; font-weight: bold; color: var(--accent); margin-top: 2px; }
+  .scoreboard { display: flex; justify-content: space-between; background: rgba(15, 7, 20, 0.7); border-radius: 16px; padding: 12px 18px; margin-bottom: 16px; border: 1px solid var(--border); }
+  .score-item span { display: block; font-size: 22px; font-weight: bold; color: var(--accent); margin-top: 2px; }
 
   .hidden { display: none !important; }
   .error { color: #f87171; font-size: 13px; min-height: 18px; margin-bottom: 4px; }
-  .status { color: var(--muted); font-size: 13px; margin-top: 10px; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-  .tab { flex: 1; padding: 12px; border-radius: 12px; background: rgba(15, 7, 20, 0.5); border: 2px solid var(--border); cursor: pointer; font-weight: bold; }
+  .status { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab { flex: 1; padding: 10px; border-radius: 12px; background: rgba(15, 7, 20, 0.5); border: 2px solid var(--border); cursor: pointer; font-weight: bold; }
   .tab.active { border-color: var(--accent); color: #ffe4e6; background: rgba(244, 63, 94, 0.15); }
-  
-  .spinner {
-    width: 30px; height: 30px; border: 3px solid rgba(244, 63, 94, 0.2); border-top-color: var(--accent);
-    border-radius: 50%; margin: 16px auto; animation: spin 1s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .waiting-line { color: var(--muted); font-size: 15px; margin: 20px 0; }
 </style>
 </head>
 <body>
@@ -127,26 +121,31 @@
 <div class="bg-hearts">
   <div class="heart-particle" style="left:10%; animation-delay:0s">💖</div>
   <div class="heart-particle" style="left:25%; animation-delay:2s">✨</div>
-  <div class="heart-particle" style="left:50%; animation-delay:4s">💖</div>
+  <div class="heart-particle" style="left:50%; animation-delay:4s">👑</div>
   <div class="heart-particle" style="left:75%; animation-delay:1s">💘</div>
-  <div class="heart-particle" style="left:90%; animation-delay:3s">✨</div>
+  <div class="heart-particle" style="left:90%; animation-delay:3s">💖</div>
 </div>
 
+<canvas id="confettiCanvas"></canvas>
+
 <div class="card" id="app">
+  <div class="couple-badge">إبراهيم 💖 يارا</div>
+
+  <div class="streak-bar">
+    <span id="streakMe">انتصاراتك: 0</span>
+    <span>👑</span>
+    <span id="streakOpp">انتصارات الخصم: 0</span>
+  </div>
 
   <!-- SCREEN 1: Connect -->
   <div id="connectScreen">
-    <h1>🎯 خمّن الرقم 💖</h1>
-    <div class="sub">تحدِّي التخمين في عالمنا الخاص ✨</div>
+    <h1>🎯 خمّن الرقم السرّي 💖</h1>
+    <div class="sub">عالم التحدي والتنافس الخاص بإبراهيم ويارا ✨</div>
     <div class="tabs">
       <div class="tab active" id="tabCreate" onclick="switchTab('create')">أنشئ غرفة</div>
       <div class="tab" id="tabJoin" onclick="switchTab('join')">انضم لغرفة</div>
     </div>
-
-    <div id="createBox">
-      <button class="btn-main" onclick="createRoom()">إنشاء غرفة جديدة 💌</button>
-    </div>
-
+    <div id="createBox"><button class="btn-main" onclick="createRoom()">إنشاء غرفة جديدة 💌</button></div>
     <div id="joinBox" class="hidden">
       <input type="text" id="joinCode" placeholder="أدخل كود الغرفة" maxlength="4" style="text-transform:uppercase">
       <button class="btn-main" onclick="joinRoom()">الدخول للغرفة ✨</button>
@@ -155,90 +154,74 @@
     <div class="status" id="connectStatus"></div>
   </div>
 
-  <!-- SCREEN 2: Waiting Screen -->
+  <!-- SCREEN 2: Waiting -->
   <div id="waitScreen" class="hidden">
     <h1>الغرفة جاهزة 💌</h1>
-    <div class="sub">أرسلي/أرسل هذا الكود للدخول:</div>
+    <div class="sub">أرسل الكود للطرف الآخر للدخول:</div>
     <div class="code-box" id="roomCodeDisplay"></div>
-    <div class="spinner"></div>
-    <div class="waiting-line">بانتظار الطرف الآخر ينضم... 💖</div>
+    <div class="status">بانتظار الانضمام... 💖</div>
   </div>
 
-  <!-- SCREEN 3: Name Setup Screen -->
+  <!-- SCREEN 3: Name Setup -->
   <div id="nameSetupScreen" class="hidden">
-    <h1>👋 أهلاً بك</h1>
-    <div class="sub">أدخل اسمك للبدء بالمنافسة (الفوز من 3 جولات)</div>
-    <input type="text" id="myName" placeholder="اسمك (إبراهيم / يارا)" maxlength="12">
-    <div class="error" id="nameSetupError"></div>
+    <h1>👋 أهلاً بكما</h1>
+    <div class="sub">أكد اسمك للبدء بالمنافسة (الفوز من 3 جولات)</div>
+    <input type="text" id="myName" placeholder="اسمك" maxlength="12">
     <button class="btn-main" id="btnNameReady" onclick="confirmName()">دخول اللعبة 💖</button>
     <div class="status" id="nameSetupStatus"></div>
   </div>
 
-  <!-- SCREEN 4: Secret Number Setup (Per Round) -->
+  <!-- SCREEN 4: Secret Setup -->
   <div id="secretSetupScreen" class="hidden">
     <div class="round-tag" id="secretRoundBanner">الجولة 1</div>
     <h1>🔒 اختر رقمك السري</h1>
-    <div class="sub">اختر رقمًا (من 1 إلى 100) واحفظه سرًا 🤫</div>
+    <div class="sub">اختر رقمًا (من 1 إلى 100) واحتفظ به سرًا 🤫</div>
     <input type="password" id="mySecretInput" placeholder="رقمك السري (1-100)" min="1" max="100">
-    <div class="error" id="secretError"></div>
     <button class="btn-main" id="btnSecretReady" onclick="confirmSecret()">تأكيد الرقم السري 🔒</button>
     <div class="status" id="secretStatus"></div>
   </div>
 
-  <!-- SCREEN 5: Guess Game Screen -->
+  <!-- SCREEN 5: Guess Game -->
   <div id="guessScreen" class="hidden">
     <div class="round-tag" id="roundBanner">الجولة 1</div>
     <div class="turn-badge" id="turnBadge">---</div>
-
     <div class="scoreboard">
       <div class="score-item" id="scoreMe">أنت<span>0 / 3</span></div>
       <div class="score-item" id="scoreOpp">الخصم<span>0 / 3</span></div>
     </div>
-
     <div id="turnControls">
       <input type="number" id="guessInput" placeholder="خمّن الرقم السري (1-100)" min="1" max="100">
       <button class="btn-main" id="guessBtn" onclick="submitGuess()">إرسال التخمين 🎯</button>
+      <button class="btn-hint" id="hintBtn" onclick="useHint()">💡 طلب تلميح (مرة باللعبة)</button>
     </div>
-
     <div class="feedback" id="feedback">ابدأ بتخمين الرقم!</div>
     <div class="history" id="history"></div>
   </div>
 
-  <!-- SCREEN 6: End Screen -->
+  <!-- SCREEN 6: End -->
   <div id="endScreen" class="hidden">
     <h1>🏆 انتهت المباراة</h1>
     <div class="feedback fb-win" id="endResult" style="margin:20px 0;"></div>
     <button class="btn-main" onclick="requestRestart()">العب مباراة جديدة 💖</button>
   </div>
-
 </div>
 
 <script>
 let S = {
-  role: null,
-  peer: null,
-  conn: null,
-  myName: 'اللاعب',
-  oppName: 'الخصم',
-  nameReady: false,
-  oppNameReady: false,
-
+  role: null, peer: null, conn: null, 
+  myName: 'إبراهيم', oppName: 'يارا',
+  nameReady: false, oppNameReady: false, hintUsed: false,
   privateSecrets: { host: null, joiner: null },
-
   gameState: {
-    started: false,
-    phase: 'NAME_SETUP',
-    round: 1,
-    scores: { host: 0, joiner: 0 },
-    secretsSubmitted: { host: false, joiner: false },
-    currentTurn: 'host',
-    starterTurn: 'host',
-    roundWinner: null,
-    history: [],
-    gameOver: false,
-    winnerRole: null
+    started: false, phase: 'NAME_SETUP', round: 1, scores: { host: 0, joiner: 0 },
+    secretsSubmitted: { host: false, joiner: false }, currentTurn: 'host', starterTurn: 'host',
+    roundWinner: null, history: [], gameOver: false, winnerRole: null
   }
 };
+
+const quotes = [
+  "ذكاء وتكتيك عالي جداً! 🌟", "رمية موفقة وذكية! 🎯", "الحظ والذكاء يجتمعان! ✨", "أداء ملكي متألق! 👑"
+];
 
 function showScreen(id) {
   ['connectScreen', 'waitScreen', 'nameSetupScreen', 'secretSetupScreen', 'guessScreen', 'endScreen'].forEach(s => {
@@ -251,364 +234,230 @@ function switchTab(which) {
   document.getElementById('tabJoin').classList.toggle('active', which === 'join');
   document.getElementById('createBox').classList.toggle('hidden', which !== 'create');
   document.getElementById('joinBox').classList.toggle('hidden', which !== 'join');
-  document.getElementById('connectError').textContent = '';
-}
-
-function randomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let c = '';
-  for (let i = 0; i < 4; i++) c += chars[Math.floor(Math.random() * chars.length)];
-  return c;
 }
 
 function createRoom() {
-  document.getElementById('connectError').textContent = '';
-  document.getElementById('connectStatus').textContent = 'جارٍ إنشاء الغرفة...';
-  const code = randomCode();
+  const code = Math.random().toString(36).substring(2, 6).toUpperCase();
   S.role = 'host';
+  S.myName = 'إبراهيم';
+  S.oppName = 'يارا';
   S.peer = new Peer('guessnum-' + code, { debug: 0 });
-
-  S.peer.on('open', function() {
-    document.getElementById('roomCodeDisplay').textContent = code;
-    showScreen('waitScreen');
+  S.peer.on('open', () => { 
+    document.getElementById('roomCodeDisplay').textContent = code; 
+    showScreen('waitScreen'); 
   });
-
-  S.peer.on('connection', function(conn) {
-    S.conn = conn;
-    setupConnHandlers();
-  });
-
-  S.peer.on('error', function(err) {
-    document.getElementById('connectStatus').textContent = '';
-    document.getElementById('connectError').textContent = 'حدث خطأ في الاتصال، حاول مجدداً';
-  });
+  S.peer.on('connection', conn => { S.conn = conn; setupConn(); });
 }
 
 function joinRoom() {
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
-  document.getElementById('connectError').textContent = '';
-  if (!code || code.length < 4) {
-    document.getElementById('connectError').textContent = 'أدخل كود الغرفة المكون من 4 رموز';
-    return;
-  }
-  document.getElementById('connectStatus').textContent = 'جارٍ الاتصال...';
+  if (code.length < 4) return;
   S.role = 'joiner';
+  S.myName = 'يارا';
+  S.oppName = 'إبراهيم';
   S.peer = new Peer({ debug: 0 });
-
-  S.peer.on('open', function() {
-    const conn = S.peer.connect('guessnum-' + code, { reliable: true });
-    S.conn = conn;
-    setupConnHandlers();
-  });
-
-  S.peer.on('error', function(err) {
-    document.getElementById('connectStatus').textContent = '';
-    if (err.type === 'peer-unavailable') {
-      document.getElementById('connectError').textContent = 'لم يتم العثور على غرفة بهذا الكود';
-    } else {
-      document.getElementById('connectError').textContent = 'تعذر الاتصال بالطرف الآخر';
-    }
+  S.peer.on('open', () => { 
+    S.conn = S.peer.connect('guessnum-' + code, { reliable: true }); 
+    setupConn(); 
   });
 }
 
-function setupConnHandlers() {
-  S.conn.on('open', function() {
+function setupConn() {
+  S.conn.on('open', () => {
+    document.getElementById('myName').value = S.myName;
     showScreen('nameSetupScreen');
   });
-
-  S.conn.on('data', function(msg) {
-    if (S.role === 'host') handleHostMessages(msg);
-    else handleJoinerMessages(msg);
-  });
-
-  S.conn.on('close', function() {
-    alert('انقطع الاتصال بينكما');
-    location.reload();
-  });
+  S.conn.on('data', msg => S.role === 'host' ? handleHostMsg(msg) : handleJoinerMsg(msg));
 }
 
-function send(msg) {
-  if (S.conn && S.conn.open) S.conn.send(msg);
-}
+function send(msg) { if (S.conn && S.conn.open) S.conn.send(msg); }
 
 function confirmName() {
-  const name = document.getElementById('myName').value.trim() || (S.role === 'host' ? 'إبراهيم' : 'يارا');
-  S.myName = name;
+  S.myName = document.getElementById('myName').value.trim() || S.myName;
   S.nameReady = true;
-
-  document.getElementById('myName').disabled = true;
   document.getElementById('btnNameReady').disabled = true;
-
-  if (S.role === 'host') {
-    document.getElementById('nameSetupStatus').textContent = S.oppNameReady ? '' : 'بانتظار الطرف الآخر يدخل اسمه...';
-    checkBothNamesReady();
-  } else {
-    send({ type: 'JOINER_NAME', name: name });
-    document.getElementById('nameSetupStatus').textContent = 'بانتظار بدء اللعبة...';
-  }
+  if (S.role === 'host') checkNames(); else send({ type: 'NAME', name: S.myName });
 }
 
-function handleHostMessages(msg) {
-  if (msg.type === 'JOINER_NAME') {
-    S.oppName = msg.name;
-    S.oppNameReady = true;
-    checkBothNamesReady();
-  } else if (msg.type === 'SUBMIT_SECRET') {
-    S.privateSecrets.joiner = msg.val;
-    S.gameState.secretsSubmitted.joiner = true;
-    checkBothSecretsReady();
-  } else if (msg.type === 'SUBMIT_GUESS') {
-    processGuess('joiner', msg.val);
-  } else if (msg.type === 'RESTART_REQUEST') {
-    startNewGame();
-  }
+function handleHostMsg(msg) {
+  if (msg.type === 'NAME') { S.oppName = msg.name; S.oppNameReady = true; checkNames(); }
+  else if (msg.type === 'SECRET') { S.privateSecrets.joiner = msg.val; S.gameState.secretsSubmitted.joiner = true; checkSecrets(); }
+  else if (msg.type === 'GUESS') processGuess('joiner', msg.val);
+  else if (msg.type === 'HINT_REQ') giveHint('joiner');
+  else if (msg.type === 'RESTART') startNewGame();
 }
 
-function handleJoinerMessages(msg) {
-  if (msg.type === 'STATE_UPDATE') {
-    S.gameState = msg.state;
-    if (msg.hostName) S.oppName = msg.hostName;
-    renderState();
-  }
+function handleJoinerMsg(msg) {
+  if (msg.type === 'STATE') { S.gameState = msg.state; if (msg.hostName) S.oppName = msg.hostName; render(); }
+  else if (msg.type === 'HINT_RES') alert(msg.text);
 }
 
-function checkBothNamesReady() {
-  if (S.role === 'host' && S.nameReady && S.oppNameReady) {
-    startNewGame();
-  }
-}
+function checkNames() { if (S.role === 'host' && S.nameReady && S.oppNameReady) startNewGame(); }
 
 function confirmSecret() {
   const val = parseInt(document.getElementById('mySecretInput').value);
-  const errEl = document.getElementById('secretError');
-  errEl.textContent = '';
-
-  if (!val || val < 1 || val > 100) {
-    errEl.textContent = 'الرجاء إدخال رقم صحيح بين 1 و 100';
-    return;
-  }
-
-  document.getElementById('mySecretInput').disabled = true;
+  if (!val || val < 1 || val > 100) return;
   document.getElementById('btnSecretReady').disabled = true;
-  document.getElementById('secretStatus').textContent = 'تم حفظ رقمك السرّي! بانتظار الطرف الآخر...';
-
-  if (S.role === 'host') {
-    S.privateSecrets.host = val;
-    S.gameState.secretsSubmitted.host = true;
-    checkBothSecretsReady();
-  } else {
-    send({ type: 'SUBMIT_SECRET', val: val });
-  }
+  if (S.role === 'host') { S.privateSecrets.host = val; S.gameState.secretsSubmitted.host = true; checkSecrets(); }
+  else send({ type: 'SECRET', val: val });
 }
 
-function checkBothSecretsReady() {
+function checkSecrets() {
   if (S.role === 'host' && S.gameState.secretsSubmitted.host && S.gameState.secretsSubmitted.joiner) {
     S.gameState.phase = 'PLAYING';
-    S.gameState.secretsSubmitted = { host: false, joiner: false };
-    broadcastState();
+    broadcast();
   }
 }
 
 function startNewGame() {
   S.gameState = {
-    started: true,
-    phase: 'SECRET_SETUP',
-    round: 1,
-    scores: { host: 0, joiner: 0 },
-    secretsSubmitted: { host: false, joiner: false },
-    starterTurn: Math.random() < 0.5 ? 'host' : 'joiner',
-    currentTurn: 'host',
-    roundWinner: null,
-    history: [],
-    gameOver: false,
-    winnerRole: null
+    started: true, phase: 'SECRET_SETUP', round: 1, scores: { host: 0, joiner: 0 },
+    secretsSubmitted: { host: false, joiner: false }, starterTurn: 'host', currentTurn: 'host',
+    roundWinner: null, history: [], gameOver: false, winnerRole: null
   };
   S.privateSecrets = { host: null, joiner: null };
-  S.gameState.currentTurn = S.gameState.starterTurn;
-  broadcastState();
+  broadcast();
 }
 
-function startNextRoundSetup() {
-  S.gameState.round++;
-  S.gameState.phase = 'SECRET_SETUP';
-  S.gameState.history = [];
-  S.gameState.roundWinner = null;
-  S.privateSecrets = { host: null, joiner: null };
-  S.gameState.secretsSubmitted = { host: false, joiner: false };
-  S.gameState.starterTurn = (S.gameState.starterTurn === 'host') ? 'joiner' : 'host';
-  S.gameState.currentTurn = S.gameState.starterTurn;
-  broadcastState();
-}
-
-function processGuess(guesserRole, val) {
+function processGuess(guesser, val) {
   const gs = S.gameState;
-  if (gs.gameOver || gs.roundWinner || gs.currentTurn !== guesserRole) return;
+  const opp = guesser === 'host' ? 'joiner' : 'host';
+  const target = S.privateSecrets[opp];
 
-  const opponentRole = (guesserRole === 'host') ? 'joiner' : 'host';
-  const targetSecret = S.privateSecrets[opponentRole];
-
-  if (val === targetSecret) {
-    gs.scores[guesserRole]++;
-    gs.roundWinner = guesserRole;
-    gs.history.push({ guesser: guesserRole, val: val, dir: 'win' });
-
-    if (gs.scores[guesserRole] >= 3) {
-      gs.phase = 'GAME_OVER';
-      gs.gameOver = true;
-      gs.winnerRole = guesserRole;
-      broadcastState();
+  if (val === target) {
+    gs.scores[guesser]++;
+    gs.roundWinner = guesser;
+    gs.history.push({ guesser, val, dir: 'win' });
+    if (gs.scores[guesser] >= 3) {
+      gs.phase = 'GAME_OVER'; gs.gameOver = true; gs.winnerRole = guesser;
+      updateTotalWins(guesser);
     } else {
-      broadcastState();
-      setTimeout(startNextRoundSetup, 2500);
+      setTimeout(() => {
+        gs.round++; gs.phase = 'SECRET_SETUP'; gs.history = []; gs.roundWinner = null;
+        gs.secretsSubmitted = { host: false, joiner: false };
+        gs.starterTurn = gs.starterTurn === 'host' ? 'joiner' : 'host';
+        gs.currentTurn = gs.starterTurn; broadcast();
+      }, 2500);
     }
   } else {
-    const dir = val < targetSecret ? 'up' : 'down';
-    gs.history.push({ guesser: guesserRole, val: val, dir: dir });
-    gs.currentTurn = opponentRole;
-    broadcastState();
+    gs.history.push({ guesser, val, dir: val < target ? 'up' : 'down' });
+    gs.currentTurn = opp;
   }
+  broadcast();
 }
 
-function broadcastState() {
-  renderState();
-  if (S.role === 'host') {
-    send({ type: 'STATE_UPDATE', state: S.gameState, hostName: S.myName });
-  }
+function giveHint(guesser) {
+  const target = S.privateSecrets[guesser === 'host' ? 'joiner' : 'host'];
+  const hintText = target % 2 === 0 ? "💡 التلميح: الرقم المطلوب هو رقم زوجي!" : "💡 التلميح: الرقم المطلوب هو رقم فردي!";
+  if (guesser === S.role) alert(hintText);
+  else send({ type: 'HINT_RES', text: hintText });
+}
+
+function useHint() {
+  if (S.hintUsed) return;
+  S.hintUsed = true;
+  document.getElementById('hintBtn').disabled = true;
+  if (S.role === 'host') giveHint('host'); else send({ type: 'HINT_REQ' });
+}
+
+function broadcast() {
+  render();
+  if (S.role === 'host') send({ type: 'STATE', state: S.gameState, hostName: S.myName });
 }
 
 function submitGuess() {
-  const input = document.getElementById('guessInput');
-  const val = parseInt(input.value);
-  if (!val || val < 1 || val > 100) return;
-
-  input.value = '';
-
-  if (S.role === 'host') {
-    processGuess('host', val);
-  } else {
-    send({ type: 'SUBMIT_GUESS', val: val });
-  }
+  const val = parseInt(document.getElementById('guessInput').value);
+  if (!val) return;
+  document.getElementById('guessInput').value = '';
+  if (S.role === 'host') processGuess('host', val); else send({ type: 'GUESS', val });
 }
 
 function requestRestart() {
-  if (S.role === 'host') {
-    startNewGame();
-  } else {
-    send({ type: 'RESTART_REQUEST' });
-  }
+  if (S.role === 'host') startNewGame(); else send({ type: 'RESTART' });
 }
 
-function renderState() {
+function updateTotalWins(winnerRole) {
+  const isMe = winnerRole === S.role;
+  const key = isMe ? 'myTotalWins' : 'oppTotalWins';
+  localStorage.setItem(key, (parseInt(localStorage.getItem(key) || 0) + 1));
+}
+
+function render() {
   const gs = S.gameState;
   if (!gs.started) return;
 
+  document.getElementById('streakMe').textContent = `انتصاراتك: ${localStorage.getItem('myTotalWins') || 0}`;
+  document.getElementById('streakOpp').textContent = `انتصارات الخصم: ${localStorage.getItem('oppTotalWins') || 0}`;
+
   if (gs.phase === 'SECRET_SETUP') {
     showScreen('secretSetupScreen');
-    document.getElementById('secretRoundBanner').textContent = `الجولة ${gs.round}`;
-
-    const secretInput = document.getElementById('mySecretInput');
-    const secretBtn = document.getElementById('btnSecretReady');
-    const secretStatus = document.getElementById('secretStatus');
-
-    if (gs.history.length === 0 && !gs.secretsSubmitted[S.role]) {
-      secretInput.disabled = false;
-      secretBtn.disabled = false;
-      secretInput.value = '';
-      secretStatus.textContent = '';
-      document.getElementById('secretError').textContent = '';
-    }
+    document.getElementById('btnSecretReady').disabled = false;
+    document.getElementById('mySecretInput').disabled = false;
+    document.getElementById('mySecretInput').value = '';
     return;
   }
 
   if (gs.phase === 'GAME_OVER') {
     showScreen('endScreen');
-    const isWinner = (gs.winnerRole === S.role);
-    const winnerName = (gs.winnerRole === S.role) ? S.myName : S.oppName;
-    const myFinalScore = gs.scores[S.role];
-    const oppFinalScore = gs.scores[S.role === 'host' ? 'joiner' : 'host'];
-
+    triggerConfetti();
+    const isWinner = gs.winnerRole === S.role;
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     document.getElementById('endResult').innerHTML = isWinner
-      ? `🎉 مبروك يا ${S.myName}! فزت بالمباراة! 👑💖<br><div style="font-size:15px; color:var(--muted); margin-top:8px;">النتيجة النهائية: ${myFinalScore} - ${oppFinalScore}</div>`
-      : `✨ فاز/ت ${winnerName} بالمباراة 🏆💖<br><div style="font-size:15px; color:var(--muted); margin-top:8px;">النتيجة النهائية: ${oppFinalScore} - ${myFinalScore}</div>`;
+      ? `🎉 مبروك يا ${S.myName}! فزت بالمباراة! 🏆<br><small style="color:var(--muted);">${randomQuote}</small>`
+      : `✨ فاز/ت ${S.oppName} بالمباراة 💖<br><small style="color:var(--muted);">حظاً أفضل في المباراة القادمة!</small>`;
     return;
   }
 
   showScreen('guessScreen');
   document.getElementById('roundBanner').textContent = `الجولة ${gs.round} (الفوز من 3)`;
-  
-  const myTurn = (gs.currentTurn === S.role);
+  const myTurn = gs.currentTurn === S.role;
   const badge = document.getElementById('turnBadge');
 
   if (gs.roundWinner) {
-    const roundWinName = (gs.roundWinner === S.role) ? S.myName : S.oppName;
-    badge.textContent = `🎉 فاز/ت ${roundWinName} بهذه الجولة! جولة جديدة قادمة... ✨`;
+    badge.textContent = `🎉 فاز/ت ${gs.roundWinner === S.role ? S.myName : S.oppName} بالجولة! 💖`;
     badge.className = 'turn-badge turn-win';
-  } else if (myTurn) {
-    badge.textContent = `🎯 دورك الآن! خمّن رقم ${S.oppName}`;
-    badge.className = 'turn-badge turn-me';
+    triggerConfetti();
   } else {
-    badge.textContent = `⏳ دور ${S.oppName}... يفكّر بالرقم ✨`;
-    badge.className = 'turn-badge turn-opp';
+    badge.textContent = myTurn ? `🎯 دورك الآن! خمّن رقم ${S.oppName}` : `⏳ دور ${S.oppName}... يفكّر بالرقم ✨`;
+    badge.className = 'turn-badge ' + (myTurn ? 'turn-me' : 'turn-opp');
   }
 
-  const myScore = gs.scores[S.role];
-  const oppScore = gs.scores[S.role === 'host' ? 'joiner' : 'host'];
-  document.getElementById('scoreMe').innerHTML = `${S.myName} (أنت)<span>${myScore} / 3</span>`;
-  document.getElementById('scoreOpp').innerHTML = `${S.oppName}<span>${oppScore} / 3</span>`;
-
-  const input = document.getElementById('guessInput');
-  const btn = document.getElementById('guessBtn');
-  const canGuess = myTurn && !gs.roundWinner;
-
-  input.disabled = !canGuess;
-  btn.disabled = !canGuess;
-
-  const fb = document.getElementById('feedback');
-  if (gs.history.length > 0) {
-    const last = gs.history[gs.history.length - 1];
-    const lastGuesserName = (last.guesser === S.role) ? 'أنت' : S.oppName;
-
-    if (last.dir === 'win') {
-      fb.textContent = `🎉 ${lastGuesserName} اكتشف الرقم السرّي (${last.val})! 💖`;
-      fb.className = 'feedback fb-win';
-    } else if (last.dir === 'up') {
-      fb.textContent = `💡 تخمين ${lastGuesserName} (${last.val}): الرقم المطلوب أعلى ⬆️`;
-      fb.className = 'feedback fb-high';
-    } else if (last.dir === 'down') {
-      fb.textContent = `💡 تخمين ${lastGuesserName} (${last.val}): الرقم المطلوب أقل ⬇️`;
-      fb.className = 'feedback fb-low';
-    }
-  } else {
-    fb.textContent = 'ابدأ بتخمين الرقم السري! 💖';
-    fb.className = 'feedback';
-  }
+  document.getElementById('scoreMe').innerHTML = `${S.myName}<span>${gs.scores[S.role]} / 3</span>`;
+  document.getElementById('scoreOpp').innerHTML = `${S.oppName}<span>${gs.scores[S.role === 'host' ? 'joiner' : 'host']} / 3</span>`;
+  document.getElementById('guessInput').disabled = !myTurn || gs.roundWinner;
+  document.getElementById('guessBtn').disabled = !myTurn || gs.roundWinner;
 
   const hContainer = document.getElementById('history');
   hContainer.innerHTML = '';
   gs.history.slice().reverse().forEach(item => {
     const chip = document.createElement('div');
-    const name = (item.guesser === S.role) ? 'أنت' : S.oppName;
-    if (item.dir === 'win') {
-      chip.className = 'chip win';
-      chip.textContent = `✓ ${name}: ${item.val} (صحيح!) 💖`;
-    } else if (item.dir === 'up') {
-      chip.className = 'chip up';
-      chip.textContent = `${name}: ${item.val} ↑ (أعلى)`;
-    } else {
-      chip.className = 'chip down';
-      chip.textContent = `${name}: ${item.val} ↓ (أقل)`;
-    }
+    const name = item.guesser === S.role ? 'أنت' : S.oppName;
+    chip.className = 'chip ' + item.dir;
+    chip.textContent = item.dir === 'win' ? `✓ ${name}: ${item.val} (صحيح!) 🎉` : `${name}: ${item.val} ${item.dir === 'up' ? '↑ (أعلى)' : '↓ (أقل)'}`;
     hContainer.appendChild(chip);
   });
 }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key !== 'Enter') return;
-  if (!document.getElementById('joinBox').classList.contains('hidden')) joinRoom();
-  else if (!document.getElementById('nameSetupScreen').classList.contains('hidden')) confirmName();
-  else if (!document.getElementById('secretSetupScreen').classList.contains('hidden')) confirmSecret();
-  else if (!document.getElementById('guessScreen').classList.contains('hidden')) submitGuess();
-});
+function triggerConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  let pieces = Array.from({length: 60}, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+    size: Math.random() * 8 + 4, color: ['#f43f5e', '#fbbf24', '#38bdf8', '#4ade80'][Math.floor(Math.random()*4)],
+    speed: Math.random() * 3 + 2
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
+      p.y += p.speed;
+    });
+  }
+  let interval = setInterval(draw, 20);
+  setTimeout(() => { clearInterval(interval); ctx.clearRect(0, 0, canvas.width, canvas.height); }, 2500);
+}
 </script>
 </body>
 </html>
+
