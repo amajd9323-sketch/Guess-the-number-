@@ -3,82 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خمّن الرقم - أونلاين</title>
+<title>خمّن الرقم - أونلاين ملتي بلاير</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 <style>
-  :root{
-    --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#f59e0b;
-    --text:#f1f5f9; --muted:#94a3b8; --danger:#ef4444; --blue:#3b82f6;
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #22c55e;
+    --accent2: #f59e0b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --danger: #ef4444;
+    --blue: #3b82f6;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; min-height:100vh; background:linear-gradient(160deg,#0f172a,#1e293b);
-    font-family:'Segoe UI', Tahoma, Arial, sans-serif; color:var(--text);
-    display:flex; align-items:center; justify-content:center; padding:20px;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: linear-gradient(160deg, #0f172a, #1e293b);
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
   }
-  .card{
-    background:var(--card); border-radius:20px; padding:28px 24px;
-    width:100%; max-width:420px; box-shadow:0 20px 50px rgba(0,0,0,0.4);
-    text-align:center;
+  .card {
+    background: var(--card); border-radius: 20px; padding: 28px 24px;
+    width: 100%; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    text-align: center;
   }
-  h1{font-size:22px; margin:0 0 4px;}
-  .sub{color:var(--muted); font-size:14px; margin-bottom:20px;}
-  .turn-badge{
-    display:inline-block; padding:6px 16px; border-radius:999px;
-    font-weight:bold; font-size:14px; margin-bottom:16px;
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  
+  .round-tag {
+    font-size: 13px; color: var(--accent2); font-weight: bold;
+    margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
   }
-  .turn-me{background:rgba(34,197,94,0.2); color:#4ade80;}
-  .turn-opp{background:rgba(245,158,11,0.2); color:#fbbf24;}
-  input[type=text], input[type=number]{
-    width:100%; padding:14px; font-size:20px; text-align:center;
-    border-radius:12px; border:2px solid #334155; background:#0f172a;
-    color:var(--text); margin-bottom:12px;
+  .turn-badge {
+    display: block; padding: 10px 16px; border-radius: 12px;
+    font-weight: bold; font-size: 15px; margin-bottom: 16px;
+    transition: all 0.3s ease;
   }
-  input:focus{outline:none; border-color:var(--accent);}
-  button{
-    width:100%; padding:14px; font-size:16px; font-weight:bold;
-    border:none; border-radius:12px; cursor:pointer; margin-top:6px;
+  .turn-me { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid var(--accent); }
+  .turn-opp { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid var(--accent2); }
+  .turn-win { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid var(--blue); }
+
+  input[type=text], input[type=number] {
+    width: 100%; padding: 14px; font-size: 20px; text-align: center;
+    border-radius: 12px; border: 2px solid #334155; background: #0f172a;
+    color: var(--text); margin-bottom: 12px;
   }
-  button:active{transform:scale(0.97);}
-  button:disabled{opacity:.5; cursor:not-allowed;}
-  .btn-main{background:var(--accent); color:#052e16;}
-  .btn-secondary{background:#334155; color:var(--text);}
-  .code-box{
-    font-size:32px; font-weight:bold; letter-spacing:6px; background:#0f172a;
-    border:2px dashed var(--accent); border-radius:12px; padding:14px; margin:16px 0;
+  input:focus { outline: none; border-color: var(--accent); }
+  button {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
+    border: none; border-radius: 12px; cursor: pointer; margin-top: 6px;
+    transition: background 0.2s, transform 0.1s;
   }
-  .feedback{font-size:18px; font-weight:bold; min-height:28px; margin:14px 0;}
-  .fb-high{color:var(--accent2);}
-  .fb-low{color:var(--blue);}
-  .fb-win{color:var(--accent); font-size:20px;}
-  .attempts{color:var(--muted); font-size:14px; margin-bottom:4px;}
-  .history{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:12px 0; min-height:32px;}
-  .chip{background:#0f172a; border:1px solid #334155; border-radius:8px; padding:4px 10px; font-size:14px;}
-  .chip.up{border-color:var(--accent2); color:var(--accent2);}
-  .chip.down{border-color:var(--blue); color:var(--blue);}
-  .scoreboard{display:flex; justify-content:space-between; background:#0f172a; border-radius:12px; padding:10px 16px; margin-bottom:18px; font-size:14px;}
-  .score-item span{display:block; font-size:20px; font-weight:bold;}
-  .hidden{display:none;}
-  .error{color:var(--danger); font-size:13px; min-height:18px; margin-bottom:4px;}
-  .status{color:var(--muted); font-size:13px; margin-top:10px;}
-  .tabs{display:flex; gap:8px; margin-bottom:18px;}
-  .tab{flex:1; padding:10px; border-radius:10px; background:#0f172a; border:2px solid #334155; cursor:pointer; font-weight:bold;}
-  .tab.active{border-color:var(--accent); color:var(--accent);}
-  .spinner{
-    width:28px; height:28px; border:3px solid #334155; border-top-color:var(--accent);
-    border-radius:50%; margin:16px auto; animation:spin 1s linear infinite;
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-main { background: var(--accent); color: #052e16; }
+  .btn-main:hover { background: #16a34a; }
+  .btn-secondary { background: #334155; color: var(--text); }
+  
+  .code-box {
+    font-size: 32px; font-weight: bold; letter-spacing: 6px; background: #0f172a;
+    border: 2px dashed var(--accent); border-radius: 12px; padding: 14px; margin: 16px 0;
   }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .waiting-line{color:var(--muted); font-size:15px; margin:20px 0;}
+  .feedback { font-size: 16px; font-weight: bold; min-height: 28px; margin: 14px 0; }
+  .fb-high { color: var(--accent2); }
+  .fb-low { color: var(--blue); }
+  .fb-win { color: var(--accent); font-size: 18px; }
+
+  .history { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; max-height: 180px; overflow-y: auto; }
+  .chip { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 14px; text-align: right; }
+  .chip.up { border-color: var(--accent2); color: #fcd34d; }
+  .chip.down { border-color: var(--blue); color: #93c5fd; }
+  .chip.win { border-color: var(--accent); color: #4ade80; font-weight: bold; }
+
+  .scoreboard { display: flex; justify-content: space-between; background: #0f172a; border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; font-size: 14px; }
+  .score-item span { display: block; font-size: 22px; font-weight: bold; color: var(--accent); margin-top: 2px; }
+
+  .hidden { display: none !important; }
+  .error { color: var(--danger); font-size: 13px; min-height: 18px; margin-bottom: 4px; }
+  .status { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab { flex: 1; padding: 10px; border-radius: 10px; background: #0f172a; border: 2px solid #334155; cursor: pointer; font-weight: bold; }
+  .tab.active { border-color: var(--accent); color: var(--accent); }
+  .spinner {
+    width: 28px; height: 28px; border: 3px solid #334155; border-top-color: var(--accent);
+    border-radius: 50%; margin: 16px auto; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .waiting-line { color: var(--muted); font-size: 15px; margin: 20px 0; }
 </style>
 </head>
 <body>
 <div class="card" id="app">
 
-  <!-- SCREEN 1: connect (create / join) -->
+  <!-- SCREEN 1: Connect -->
   <div id="connectScreen">
-    <h1>🎯 خمّن الرقم</h1>
-    <div class="sub">العب مع صديقك من أي دولة — أونلاين مباشرة</div>
+    <h1>🎯 خمّن الرقم - أونلاين</h1>
+    <div class="sub">تحدَّ صديقك في لعبة التخمين بالتبادل</div>
     <div class="tabs">
       <div class="tab active" id="tabCreate" onclick="switchTab('create')">أنشئ غرفة</div>
       <div class="tab" id="tabJoin" onclick="switchTab('join')">انضم لغرفة</div>
@@ -90,309 +113,404 @@
 
     <div id="joinBox" class="hidden">
       <input type="text" id="joinCode" placeholder="أدخل كود الغرفة" maxlength="4" style="text-transform:uppercase">
-      <button class="btn-main" onclick="joinRoom()">انضم</button>
+      <button class="btn-main" onclick="joinRoom()">انضم للغرفة</button>
     </div>
     <div class="error" id="connectError"></div>
     <div class="status" id="connectStatus"></div>
   </div>
 
-  <!-- SCREEN 2: waiting for opponent to join -->
+  <!-- SCREEN 2: Waiting Screen -->
   <div id="waitScreen" class="hidden">
     <h1>غرفتك جاهزة</h1>
-    <div class="sub">أرسل هذا الكود لصديقك ليدخل به من هاتفه</div>
+    <div class="sub">شارك الكود مع صديقك للدخول:</div>
     <div class="code-box" id="roomCodeDisplay"></div>
     <div class="spinner"></div>
-    <div class="waiting-line">بانتظار انضمام صديقك...</div>
+    <div class="waiting-line">بانتظار انضمام الخصم...</div>
   </div>
 
-  <!-- SCREEN 3: enter name + secret -->
+  <!-- SCREEN 3: Setup Screen -->
   <div id="setupScreen" class="hidden">
-    <h1>👋 جاهزون للعب</h1>
-    <div class="sub">أدخل اسمك واختر رقمك السري (١-١٠٠) — لن يراه خصمك</div>
+    <h1>👋 مرحباً بك</h1>
+    <div class="sub">أدخل اسمك للبدء بالمنافسة (الفوز من 3 جولات)</div>
     <input type="text" id="myName" placeholder="اسمك" maxlength="12">
-    <input type="number" id="mySecret" placeholder="رقمك السري" min="1" max="100">
     <div class="error" id="setupError"></div>
-    <button class="btn-main" onclick="confirmSetup()">جاهز!</button>
+    <button class="btn-main" id="btnReady" onclick="confirmSetup()">أنا جاهز!</button>
     <div class="status" id="setupStatus"></div>
   </div>
 
-  <!-- SCREEN 4: game -->
+  <!-- SCREEN 4: Game Screen -->
   <div id="guessScreen" class="hidden">
-    <div class="turn-badge" id="turnBadge"></div>
+    <div class="round-tag" id="roundBanner">الجولة 1</div>
+    <div class="turn-badge" id="turnBadge">---</div>
+
     <div class="scoreboard">
-      <div class="score-item" id="scoreMe"></div>
-      <div class="score-item" id="scoreOpp"></div>
+      <div class="score-item" id="scoreMe">أنت<span>0 / 3</span></div>
+      <div class="score-item" id="scoreOpp">الخصم<span>0 / 3</span></div>
     </div>
-    <div class="attempts" id="attemptsText"></div>
 
-    <div id="myTurnBox">
-      <input type="number" id="guessInput" placeholder="خمّن رقمًا" min="1" max="100">
-      <button class="btn-main" onclick="submitGuess()">خمّن</button>
+    <div id="turnControls">
+      <input type="number" id="guessInput" placeholder="خمّن رقمًا (1-100)" min="1" max="100">
+      <button class="btn-main" id="guessBtn" onclick="submitGuess()">إرسال التخمين</button>
     </div>
-    <div id="oppTurnBox" class="hidden waiting-line">بانتظار تخمين الخصم...</div>
 
-    <div class="feedback" id="feedback"></div>
+    <div class="feedback" id="feedback">ابدأ بتخمين الرقم!</div>
     <div class="history" id="history"></div>
   </div>
 
-  <!-- SCREEN 5: end -->
+  <!-- SCREEN 5: End Screen -->
   <div id="endScreen" class="hidden">
-    <h1>🏆 انتهت اللعبة</h1>
-    <div class="feedback fb-win" id="endResult"></div>
-    <button class="btn-main" onclick="location.reload()">العب مرة أخرى</button>
+    <h1>🏆 انتهت المباراة</h1>
+    <div class="feedback fb-win" id="endResult" style="margin:20px 0;"></div>
+    <button class="btn-main" onclick="requestRestart()">العب مرة أخرى</button>
   </div>
 
 </div>
 
 <script>
 let S = {
-  role: null,        // 'host' | 'joiner'
+  role: null,          // 'host' | 'joiner'
   peer: null,
   conn: null,
-  myName: '', oppName: '',
-  mySecret: null,
-  myAttempts: 0, oppAttempts: 0,
-  round: 1,           // 1 or 2
-  myReady: false, oppReady: false,
-  gameStarted: false
+  myName: 'اللاعب',
+  oppName: 'الخصم',
+  myReady: false,
+  oppReady: false,
+
+  // حالة اللعبة المركزية (المُدارّة من الـ Host)
+  gameState: {
+    started: false,
+    round: 1,
+    scores: { host: 0, joiner: 0 },
+    secretNumber: null,
+    currentTurn: 'host', // 'host' | 'joiner'
+    starterTurn: 'host',
+    roundWinner: null,   // null | 'host' | 'joiner'
+    history: [],         // قائمة التخمينات للجولة الحالية
+    gameOver: false,
+    winnerRole: null
+  }
 };
 
-function switchTab(which){
-  document.getElementById('tabCreate').classList.toggle('active', which==='create');
-  document.getElementById('tabJoin').classList.toggle('active', which==='join');
-  document.getElementById('createBox').classList.toggle('hidden', which!=='create');
-  document.getElementById('joinBox').classList.toggle('hidden', which!=='join');
-  document.getElementById('connectError').textContent='';
+function showScreen(id) {
+  ['connectScreen', 'waitScreen', 'setupScreen', 'guessScreen', 'endScreen'].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
 }
 
-function randomCode(){
+function switchTab(which) {
+  document.getElementById('tabCreate').classList.toggle('active', which === 'create');
+  document.getElementById('tabJoin').classList.toggle('active', which === 'join');
+  document.getElementById('createBox').classList.toggle('hidden', which !== 'create');
+  document.getElementById('joinBox').classList.toggle('hidden', which !== 'join');
+  document.getElementById('connectError').textContent = '';
+}
+
+function randomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let c='';
-  for(let i=0;i<4;i++) c += chars[Math.floor(Math.random()*chars.length)];
+  let c = '';
+  for (let i = 0; i < 4; i++) c += chars[Math.floor(Math.random() * chars.length)];
   return c;
 }
 
-function createRoom(){
-  document.getElementById('connectError').textContent='';
-  document.getElementById('connectStatus').textContent='جارٍ إنشاء الغرفة...';
+function createRoom() {
+  document.getElementById('connectError').textContent = '';
+  document.getElementById('connectStatus').textContent = 'جارٍ إنشاء الغرفة...';
   const code = randomCode();
   S.role = 'host';
   S.peer = new Peer('guessnum-' + code, { debug: 0 });
 
-  S.peer.on('open', function(){
+  S.peer.on('open', function() {
     document.getElementById('roomCodeDisplay').textContent = code;
-    document.getElementById('connectScreen').classList.add('hidden');
-    document.getElementById('waitScreen').classList.remove('hidden');
+    showScreen('waitScreen');
   });
 
-  S.peer.on('connection', function(conn){
+  S.peer.on('connection', function(conn) {
     S.conn = conn;
     setupConnHandlers();
   });
 
-  S.peer.on('error', function(err){
-    document.getElementById('connectStatus').textContent='';
-    document.getElementById('connectError').textContent = 'حدث خطأ، حاول من جديد: ' + err.type;
+  S.peer.on('error', function(err) {
+    document.getElementById('connectStatus').textContent = '';
+    document.getElementById('connectError').textContent = 'حدث خطأ في الاتصال، حاول مجدداً';
   });
 }
 
-function joinRoom(){
+function joinRoom() {
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
-  document.getElementById('connectError').textContent='';
-  if(!code || code.length<4){
-    document.getElementById('connectError').textContent='أدخل كود الغرفة المكوّن من ٤ رموز';
+  document.getElementById('connectError').textContent = '';
+  if (!code || code.length < 4) {
+    document.getElementById('connectError').textContent = 'أدخل كود الغرفة المكون من 4 رموز';
     return;
   }
-  document.getElementById('connectStatus').textContent='جارٍ الاتصال...';
+  document.getElementById('connectStatus').textContent = 'جارٍ الاتصال...';
   S.role = 'joiner';
   S.peer = new Peer({ debug: 0 });
 
-  S.peer.on('open', function(){
+  S.peer.on('open', function() {
     const conn = S.peer.connect('guessnum-' + code, { reliable: true });
     S.conn = conn;
     setupConnHandlers();
   });
 
-  S.peer.on('error', function(err){
-    document.getElementById('connectStatus').textContent='';
-    if(err.type === 'peer-unavailable'){
-      document.getElementById('connectError').textContent='لم يتم العثور على غرفة بهذا الكود';
+  S.peer.on('error', function(err) {
+    document.getElementById('connectStatus').textContent = '';
+    if (err.type === 'peer-unavailable') {
+      document.getElementById('connectError').textContent = 'لم يتم العثور على غرفة بهذا الكود';
     } else {
-      document.getElementById('connectError').textContent = 'حدث خطأ: ' + err.type;
+      document.getElementById('connectError').textContent = 'تعذر الاتصال بالخصم';
     }
   });
 }
 
-function setupConnHandlers(){
-  S.conn.on('open', function(){
-    document.getElementById('waitScreen').classList.add('hidden');
-    document.getElementById('connectScreen').classList.add('hidden');
-    document.getElementById('setupScreen').classList.remove('hidden');
+function setupConnHandlers() {
+  S.conn.on('open', function() {
+    showScreen('setupScreen');
   });
-  S.conn.on('data', handleMessage);
-  S.conn.on('close', function(){
-    document.getElementById('setupStatus').textContent = 'انقطع الاتصال بالخصم';
+
+  S.conn.on('data', function(msg) {
+    if (S.role === 'host') handleHostMessages(msg);
+    else handleJoinerMessages(msg);
+  });
+
+  S.conn.on('close', function() {
+    alert('انقطع الاتصال بالخصم');
+    location.reload();
   });
 }
 
-function send(msg){
-  if(S.conn && S.conn.open) S.conn.send(msg);
+function send(msg) {
+  if (S.conn && S.conn.open) S.conn.send(msg);
 }
 
-function confirmSetup(){
-  const name = document.getElementById('myName').value.trim() || 'أنا';
-  const secret = parseInt(document.getElementById('mySecret').value);
-  if(!secret || secret<1 || secret>100){
-    document.getElementById('setupError').textContent = 'أدخل رقمًا صحيحًا بين ١ و١٠٠';
+// ----------------- إعداد اللاعبين -----------------
+function confirmSetup() {
+  const name = document.getElementById('myName').value.trim() || (S.role === 'host' ? 'اللاعب 1' : 'اللاعب 2');
+  S.myName = name;
+  S.myReady = true;
+
+  document.getElementById('myName').disabled = true;
+  document.getElementById('btnReady').disabled = true;
+
+  if (S.role === 'host') {
+    document.getElementById('setupStatus').textContent = S.oppReady ? '' : 'بانتظار جهوزية الخصم...';
+    checkBothReady();
+  } else {
+    send({ type: 'JOINER_READY', name: name });
+    document.getElementById('setupStatus').textContent = 'بانتظار بدء اللعبة من المضيف...';
+  }
+}
+
+function handleHostMessages(msg) {
+  if (msg.type === 'JOINER_READY') {
+    S.oppName = msg.name;
+    S.oppReady = true;
+    checkBothReady();
+  } else if (msg.type === 'SUBMIT_GUESS') {
+    processGuess('joiner', msg.val);
+  } else if (msg.type === 'RESTART_REQUEST') {
+    startNewGame();
+  }
+}
+
+function handleJoinerMessages(msg) {
+  if (msg.type === 'STATE_UPDATE') {
+    S.gameState = msg.state;
+    if (msg.hostName) S.oppName = msg.hostName;
+    renderState();
+  }
+}
+
+function checkBothReady() {
+  if (S.role === 'host' && S.myReady && S.oppReady) {
+    startNewGame();
+  }
+}
+
+// ----------------- منطق اللعبة (الـ Host) -----------------
+function startNewGame() {
+  S.gameState = {
+    started: true,
+    round: 1,
+    scores: { host: 0, joiner: 0 },
+    secretNumber: Math.floor(Math.random() * 100) + 1,
+    starterTurn: Math.random() < 0.5 ? 'host' : 'joiner',
+    currentTurn: 'host',
+    roundWinner: null,
+    history: [],
+    gameOver: false,
+    winnerRole: null
+  };
+  S.gameState.currentTurn = S.gameState.starterTurn;
+  broadcastState();
+}
+
+function startNextRound() {
+  S.gameState.round++;
+  S.gameState.secretNumber = Math.floor(Math.random() * 100) + 1;
+  S.gameState.history = [];
+  S.gameState.roundWinner = null;
+  // التناوب على بدء الجولة التالية
+  S.gameState.starterTurn = (S.gameState.starterTurn === 'host') ? 'joiner' : 'host';
+  S.gameState.currentTurn = S.gameState.starterTurn;
+  broadcastState();
+}
+
+function processGuess(guesserRole, val) {
+  const gs = S.gameState;
+  if (gs.gameOver || gs.roundWinner || gs.currentTurn !== guesserRole) return;
+
+  if (val === gs.secretNumber) {
+    // إجابة صحيحة - فوز بالجولة
+    gs.scores[guesserRole]++;
+    gs.roundWinner = guesserRole;
+    gs.history.push({ guesser: guesserRole, val: val, dir: 'win' });
+
+    if (gs.scores[guesserRole] >= 3) {
+      gs.gameOver = true;
+      gs.winnerRole = guesserRole;
+      broadcastState();
+    } else {
+      broadcastState();
+      setTimeout(startNextRound, 2500); // الانتقال للجولة التالية بعد ثانيتين ونصف
+    }
+  } else {
+    // إجابة خاطئة - تحديد الاتجاه وتبديل الدور
+    const dir = val < gs.secretNumber ? 'up' : 'down';
+    gs.history.push({ guesser: guesserRole, val: val, dir: dir });
+    gs.currentTurn = (guesserRole === 'host') ? 'joiner' : 'host';
+    broadcastState();
+  }
+}
+
+function broadcastState() {
+  renderState();
+  if (S.role === 'host') {
+    send({ type: 'STATE_UPDATE', state: S.gameState, hostName: S.myName });
+  }
+}
+
+function submitGuess() {
+  const input = document.getElementById('guessInput');
+  const val = parseInt(input.value);
+  if (!val || val < 1 || val > 100) return;
+
+  input.value = '';
+
+  if (S.role === 'host') {
+    processGuess('host', val);
+  } else {
+    send({ type: 'SUBMIT_GUESS', val: val });
+  }
+}
+
+function requestRestart() {
+  if (S.role === 'host') {
+    startNewGame();
+  } else {
+    send({ type: 'RESTART_REQUEST' });
+  }
+}
+
+// ----------------- عرض الواجهة (Render) -----------------
+function renderState() {
+  const gs = S.gameState;
+  if (!gs.started) return;
+
+  // 1. نهاية المباراة
+  if (gs.gameOver) {
+    showScreen('endScreen');
+    const isWinner = (gs.winnerRole === S.role);
+    const winnerName = (gs.winnerRole === S.role) ? S.myName : S.oppName;
+    const myFinalScore = gs.scores[S.role];
+    const oppFinalScore = gs.scores[S.role === 'host' ? 'joiner' : 'host'];
+
+    document.getElementById('endResult').innerHTML = isWinner
+      ? `🎉 مبروك! فزت بالمباراة! 🏆<br><div style="font-size:15px; color:var(--muted); margin-top:8px;">النتيجة النهائية: ${myFinalScore} - ${oppFinalScore}</div>`
+      : `😔 فاز ${winnerName} بالمباراة 🏆<br><div style="font-size:15px; color:var(--muted); margin-top:8px;">النتيجة النهائية: ${oppFinalScore} - ${myFinalScore}</div>`;
     return;
   }
-  S.myName = name;
-  S.mySecret = secret;
-  S.myReady = true;
-  send({t:'ready', name:name});
-  document.getElementById('setupScreen').querySelectorAll('input,button').forEach(el=>el.disabled=true);
-  document.getElementById('setupStatus').textContent = S.oppReady ? '' : 'بانتظار جهوزية الخصم...';
-  tryStartGame();
-}
 
-function tryStartGame(){
-  if(S.myReady && S.oppReady && !S.gameStarted){
-    S.gameStarted = true;
-    document.getElementById('setupScreen').classList.add('hidden');
-    document.getElementById('guessScreen').classList.remove('hidden');
-    renderGuessScreen();
-  }
-}
+  showScreen('guessScreen');
 
-function isMyTurn(){
-  return (S.round===1 && S.role==='host') || (S.round===2 && S.role==='joiner');
-}
+  // 2. تحديث العنوان والدور
+  document.getElementById('roundBanner').textContent = `الجولة ${gs.round} (الفوز من 3)`;
+  
+  const myTurn = (gs.currentTurn === S.role);
+  const badge = document.getElementById('turnBadge');
 
-function renderGuessScreen(){
-  const myTurn = isMyTurn();
-  document.getElementById('turnBadge').textContent = myTurn
-    ? `دورك — خمّن رقم ${S.oppName}`
-    : `دور ${S.oppName} — ينتظر أن يخمّن رقمك`;
-  document.getElementById('turnBadge').className = 'turn-badge ' + (myTurn?'turn-me':'turn-opp');
-  document.getElementById('myTurnBox').classList.toggle('hidden', !myTurn);
-  document.getElementById('oppTurnBox').classList.toggle('hidden', myTurn);
-  const myAttemptsShown = S.round===1 ? (S.role==='host'?S.myAttempts:S.oppAttempts)
-                                       : (S.role==='joiner'?S.myAttempts:S.oppAttempts);
-  document.getElementById('attemptsText').textContent = `محاولات هذه الجولة: ${myTurn?S.myAttempts:S.oppAttempts}`;
-  document.getElementById('feedback').textContent='';
-  document.getElementById('feedback').className='feedback';
-  document.getElementById('guessInput').value='';
-  updateScoreboard();
-}
-
-function updateScoreboard(){
-  document.getElementById('scoreMe').innerHTML = `${S.myName}<span>${S.myAttempts||'-'}</span>`;
-  document.getElementById('scoreOpp').innerHTML = `${S.oppName}<span>${S.oppAttempts||'-'}</span>`;
-}
-
-function addHistoryChip(val, dir){
-  const h = document.getElementById('history');
-  const chip = document.createElement('div');
-  chip.className = 'chip ' + (dir==='up'?'up':dir==='down'?'down':'');
-  chip.textContent = dir==='up' ? `${val} ↑` : dir==='down' ? `${val} ↓` : `${val} ✓`;
-  h.appendChild(chip);
-}
-
-function submitGuess(){
-  if(!isMyTurn()) return;
-  const val = parseInt(document.getElementById('guessInput').value);
-  if(!val || val<1 || val>100) return;
-  send({t:'guess', v: val});
-  document.getElementById('guessInput').value='';
-  document.getElementById('guessInput').disabled = true;
-  document.getElementById('feedback').textContent = 'بانتظار رد الخصم...';
-}
-
-function handleMessage(msg){
-  if(msg.t === 'ready'){
-    S.oppReady = true;
-    S.oppName = msg.name;
-    document.getElementById('setupStatus').textContent = S.myReady ? '' : `${S.oppName} جاهز، أكمل إعدادك`;
-    tryStartGame();
-  }
-  else if(msg.t === 'guess'){
-    // I'm the setter this round, opponent guessed my number
-    S.oppAttempts++;
-    let dir;
-    if(msg.v === S.mySecret) dir = 'correct';
-    else if(msg.v < S.mySecret) dir = 'up';
-    else dir = 'down';
-    send({t:'feedback', v: msg.v, dir: dir});
-    // reflect on my screen too (I'm the spectator/setter this round)
-    document.getElementById('history').classList.contains('__unused__'); // no-op
-    if(!isMyTurn()){
-      addHistoryChip(msg.v, dir);
-      document.getElementById('attemptsText').textContent = `محاولات هذه الجولة: ${S.oppAttempts}`;
-      updateScoreboard();
-      if(dir === 'correct'){
-        setTimeout(endRoundAndAdvance, 1200);
-      }
-    }
-  }
-  else if(msg.t === 'feedback'){
-    // I'm the guesser
-    S.myAttempts++;
-    document.getElementById('guessInput').disabled = false;
-    addHistoryChip(msg.v, msg.dir);
-    updateScoreboard();
-    const fb = document.getElementById('feedback');
-    if(msg.dir === 'correct'){
-      fb.textContent = `🎉 صحيح! الرقم كان ${msg.v} — بعدد ${S.myAttempts} محاولة`;
-      fb.className = 'feedback fb-win';
-      document.getElementById('myTurnBox').classList.add('hidden');
-      setTimeout(endRoundAndAdvance, 1200);
-    } else if(msg.dir === 'up'){
-      fb.textContent = 'أعلى ⬆️';
-      fb.className = 'feedback fb-high';
-      document.getElementById('attemptsText').textContent = `محاولات هذه الجولة: ${S.myAttempts}`;
-    } else {
-      fb.textContent = 'أقل ⬇️';
-      fb.className = 'feedback fb-low';
-      document.getElementById('attemptsText').textContent = `محاولات هذه الجولة: ${S.myAttempts}`;
-    }
-  }
-  else if(msg.t === 'roundadvance'){
-    advanceRound();
-  }
-}
-
-function endRoundAndAdvance(){
-  send({t:'roundadvance'});
-  advanceRound();
-}
-
-let _advanced = false;
-function advanceRound(){
-  if(S.round === 1){
-    S.round = 2;
-    document.getElementById('history').innerHTML='';
-    renderGuessScreen();
+  if (gs.roundWinner) {
+    const roundWinName = (gs.roundWinner === S.role) ? S.myName : S.oppName;
+    badge.textContent = `🎉 فاز ${roundWinName} بهذه الجولة! جارٍ التجهيز للجولة التالية...`;
+    badge.className = 'turn-badge turn-win';
+  } else if (myTurn) {
+    badge.textContent = `🎯 دورك الآن! خمّن رقمًا بين 1 و 100`;
+    badge.className = 'turn-badge turn-me';
   } else {
-    showEnd();
+    badge.textContent = `⏳ دور ${S.oppName}... ينتظر التخمين`;
+    badge.className = 'turn-badge turn-opp';
   }
+
+  // 3. لوحة النقاط
+  const myScore = gs.scores[S.role];
+  const oppScore = gs.scores[S.role === 'host' ? 'joiner' : 'host'];
+  document.getElementById('scoreMe').innerHTML = `${S.myName} (أنت)<span>${myScore} / 3</span>`;
+  document.getElementById('scoreOpp').innerHTML = `${S.oppName}<span>${oppScore} / 3</span>`;
+
+  // 4. التحكم بالتخمين
+  const input = document.getElementById('guessInput');
+  const btn = document.getElementById('guessBtn');
+  const canGuess = myTurn && !gs.roundWinner;
+
+  input.disabled = !canGuess;
+  btn.disabled = !canGuess;
+
+  // 5. النتيجة الأخيرة والسجل
+  const fb = document.getElementById('feedback');
+  if (gs.history.length > 0) {
+    const last = gs.history[gs.history.length - 1];
+    const lastGuesserName = (last.guesser === S.role) ? 'أنت' : S.oppName;
+
+    if (last.dir === 'win') {
+      fb.textContent = `🎉 ${lastGuesserName} خمّن الرقم الصحيح (${last.val})!`;
+      fb.className = 'feedback fb-win';
+    } else if (last.dir === 'up') {
+      fb.textContent = `💡 تخمين ${lastGuesserName} (${last.val}): الرقم المطلوب أعلى ⬆️`;
+      fb.className = 'feedback fb-high';
+    } else if (last.dir === 'down') {
+      fb.textContent = `💡 تخمين ${lastGuesserName} (${last.val}): الرقم المطلوب أقل ⬇️`;
+      fb.className = 'feedback fb-low';
+    }
+  } else {
+    fb.textContent = 'ابدأ بتخمين الرقم!';
+    fb.className = 'feedback';
+  }
+
+  // طباعة سجل التخمينات للجولة
+  const hContainer = document.getElementById('history');
+  hContainer.innerHTML = '';
+  gs.history.slice().reverse().forEach(item => {
+    const chip = document.createElement('div');
+    const name = (item.guesser === S.role) ? 'أنت' : S.oppName;
+    if (item.dir === 'win') {
+      chip.className = 'chip win';
+      chip.textContent = `✓ ${name}: ${item.val} (صحيح!)`;
+    } else if (item.dir === 'up') {
+      chip.className = 'chip up';
+      chip.textContent = `${name}: ${item.val} ↑ (أعلى)`;
+    } else {
+      chip.className = 'chip down';
+      chip.textContent = `${name}: ${item.val} ↓ (أقل)`;
+    }
+    hContainer.appendChild(chip);
+  });
 }
 
-function showEnd(){
-  document.getElementById('guessScreen').classList.add('hidden');
-  const meA = S.myAttempts, oppA = S.oppAttempts;
-  let msg;
-  if(meA < oppA) msg = `🏆 ${S.myName} يفوز! (${meA} محاولة مقابل ${oppA})`;
-  else if(oppA < meA) msg = `🏆 ${S.oppName} يفوز! (${oppA} محاولة مقابل ${meA})`;
-  else msg = `🤝 تعادل! كلاكما استخدم ${meA} محاولة`;
-  document.getElementById('endResult').textContent = msg;
-  document.getElementById('endScreen').classList.remove('hidden');
-}
-
-document.addEventListener('keydown', function(e){
-  if(e.key !== 'Enter') return;
-  if(!document.getElementById('joinBox').classList.contains('hidden')) joinRoom();
-  else if(!document.getElementById('setupScreen').classList.contains('hidden')) confirmSetup();
-  else if(!document.getElementById('guessScreen').classList.contains('hidden') && isMyTurn()) submitGuess();
+// اختصار مفتاح Enter
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  if (!document.getElementById('joinBox').classList.contains('hidden')) joinRoom();
+  else if (!document.getElementById('setupScreen').classList.contains('hidden')) confirmSetup();
+  else if (!document.getElementById('guessScreen').classList.contains('hidden')) submitGuess();
 });
 </script>
 </body>
